@@ -1,10 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity } from 'typeorm';
+import { ProductLookup } from './ProductLookup';
 
 @Entity("lkp_product_brand")
-export class LkpProductBrand {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column("varchar", { name: "value"})
-  value: string;
-}
+export class LkpProductBrand extends ProductLookup {}
