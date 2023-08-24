@@ -15,5 +15,5 @@ export class ProductField {
   filterType: string;
 
   @Column("tinyint", { name: "filterable", nullable: true })
-  filterable: number;
+  filterable: boolean;
 }

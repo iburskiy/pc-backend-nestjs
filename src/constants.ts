@@ -1,0 +1,1 @@
+export const PRODUCT_LOOKUP_FIELD_TEXT = 'Product Lookup Field';

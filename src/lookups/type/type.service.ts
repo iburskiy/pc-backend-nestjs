@@ -11,23 +11,30 @@ export class TypeService {
     private lookupRepository: Repository<LkpProductType>,
   ) {}
 
-  create(createTypeDto: CreateLookupDto) {
-    return 'This action adds a new type';
+  create(createBrandDto: CreateLookupDto) {
+    return this.lookupRepository.insert(createBrandDto);
   }
 
   findAll() {
     return this.lookupRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} type`;
+  findAllExtended() {
+    const res = this.lookupRepository.query(
+      `SELECT pt.id, pt.value, CASE WHEN p.model is not NULL THEN 1 ELSE 0 END AS isProductExist
+       FROM lkp_product_type pt
+                LEFT JOIN product p
+                          ON pt.id = p.type_id and
+                             p.id = (select min(id) from product where type_id = pt.id)`
+    );
+    return res;
   }
 
-  update(id: number, updateTypeDto: CreateLookupDto) {
-    return `This action updates a #${id} type`;
+  update(id: number, updateBrandDto: CreateLookupDto) {
+    return this.lookupRepository.update(id, updateBrandDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} type`;
+    return this.lookupRepository.delete(id);
   }
 }

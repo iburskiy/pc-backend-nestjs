@@ -45,6 +45,7 @@ import { ProductModule } from './product/product.module';
         LkpProductRamType, LkpProductResolution, LkpProductType, LkpProductYear,
         ProductField, Product, User,
       ],
+      //autoLoadEntities: true,
       synchronize: true,
     }),
     UserModule,

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../typeorm/entities/Product';
@@ -27,19 +26,67 @@ export class ProductService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+  async create(createProductDto: CreateProductDto) {
+    const dto = createProductDto;
+
+    dto.image = dto.image ? dto.image : null;
+    dto.imageName = dto.imageName ? dto.imageName : null;
+    dto.core = dto.core ? dto.core : null;
+    dto.diagonal = dto.diagonal ? dto.diagonal : null;
+    dto.sizeHD = dto.sizeHD ? dto.sizeHD : null;
+    dto.refreshRate = dto.refreshRate ? dto.refreshRate : null;
+    dto.weight = dto.weight ? dto.weight : null;
+    dto.thickness = dto.thickness ? dto.thickness : null;
+    dto.cpuModel = dto.cpuModel ? dto.cpuModel : null;
+    dto.graphicsModel = dto.graphicsModel ? dto.graphicsModel : null;
+    dto.url = dto.url ? dto.url : null;
+
+    return this.productsRepository.query(
+      `INSERT INTO product (model,image,image_name,code,price,year_id,brand_id,type_id,cpu_id,color_id,graphics_id,os_id,resolution_id,ram_type_id,ram,core,diagonal,sizeHD,refresh_rate,weight,thickness,cpu_model,graphics_model,url)
+                VALUES ('${dto.model}',${dto.image},${dto.imageName},'${dto.code}',${dto.price},
+                        ${dto.yearId},${dto.brandId},${dto.typeId},${dto.cpuId},${dto.colorId},${dto.graphicsId},${dto.osId},
+                        ${dto.resolutionId},${dto.ramTypeId},${dto.ram},${dto.core},${dto.diagonal},${dto.sizeHD},
+                        ${dto.refreshRate},${dto.weight},${dto.thickness},${dto.cpuModel},${dto.graphicsModel},${dto.url})
+      `);
+
+    // There was an error creating Product model Asd model3:
+    //  TypeError: Cannot set properties of undefined (setting 'id')
+    /*
+    const product = new Product();
+    product.model = createProductDto.model;
+    product.image = createProductDto.image;
+    product.imageName = createProductDto.imageName;
+    product.code = createProductDto.code;
+    product.price = createProductDto.price;
+    product.yearEntity.id = createProductDto.yearId;
+    product.brandEntity.id = createProductDto.brandId;
+    product.typeEntity.id = createProductDto.typeId;
+    product.cpuEntity.id = createProductDto.cpuId;
+    product.colorEntity.id = createProductDto.colorId;
+    product.graphicsEntity.id = createProductDto.graphicsId;
+    product.osEntity.id = createProductDto.osId;
+    product.resolutionEntity.id = createProductDto.resolutionId;
+    product.ramTypeEntity.id = createProductDto.ramTypeId;
+    product.ram = parseInt(createProductDto.ram);
+    product.core = parseInt(createProductDto.core);
+    product.diagonal = parseInt(createProductDto.diagonal);
+    product.sizeHD = parseInt(createProductDto.sizeHD);
+    product.refreshRate = parseInt(createProductDto.refreshRate);
+    product.weight = parseInt(createProductDto.weight);
+    product.thickness = parseInt(createProductDto.thickness);
+    product.cpuModel = createProductDto.cpuModel;
+    product.graphicsModel = createProductDto.graphicsModel;
+    product.url = createProductDto.url;
+
+    const res = await this.productsRepository.save(product);
+    return res;*/
   }
 
   findAll(productsPerPage: number, query): Promise<Product[]> {
-    console.log('productsPerPage: ', productsPerPage);
-    console.log('query: ', query);
-
     const pageNumber = query.page ? query.page : 1;
     const filters = query.filters;
     const q = query.q;
     const havingClause = this.makeHavingClause(filters, q);
-    console.log('havingClause: ', havingClause);
 
     return this.productsRepository.query(
       `${SELECT_PRODUCTS_STATEMENT}
@@ -48,28 +95,100 @@ export class ProductService {
     );
   }
 
-  findCount(query) {
+  async findCount(query) {
     const filters = query.filters;
     const q = query.q;
     const havingClause = this.makeHavingClause(filters, q);
 
-    return this.productsRepository.query(
+    const queryArray = await this.productsRepository.query(
       `select count(*) as productCount from (
                 ${SELECT_PRODUCTS_STATEMENT}
                 ${havingClause}
              ) sub`);
+    return queryArray[0];
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: number) {
+    return this.productsRepository
+      .createQueryBuilder('product')
+      .select(['product.*'])
+      .where("product.id = :id", {id: id})
+      .getRawOne();
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async findOneByCode(code: string) {
+    const product = await this.productsRepository
+      .createQueryBuilder('p')
+      .select([
+        'p.id AS id',
+        'p.model AS model',
+        'p.image AS image',
+        'p.code AS code',
+        'p.price AS price',
+        'yearEntity.value AS year',
+        'brandEntity.value AS brand',
+        'typeEntity.value AS type',
+        'cpuEntity.value AS cpu',
+        'colorEntity.value AS color',
+        'graphicsEntity.value AS graphicsCard',
+        'osEntity.value AS os',
+        'resolutionEntity.value AS resolution',
+        'ramTypeEntity.value AS ramType',
+        'p.ram AS ram',
+        'p.core AS core',
+        'p.diagonal AS diagonal',
+        'p.sizeHD AS sizeHD',
+        'p.refresh_rate AS refreshRate',
+        'p.weight AS weight',
+        'p.thickness AS thickness',
+        'p.cpu_model AS cpuModel',
+        'p.graphics_model AS graphicsModel',
+        'p.url AS url',
+      ])
+      .leftJoin("p.yearEntity", "yearEntity")
+      .leftJoin("p.brandEntity", "brandEntity")
+      .leftJoin("p.typeEntity", "typeEntity")
+      .leftJoin("p.cpuEntity", "cpuEntity")
+      .leftJoin("p.colorEntity", "colorEntity")
+      .leftJoin("p.graphicsEntity", "graphicsEntity")
+      .leftJoin("p.osEntity", "osEntity")
+      .leftJoin("p.resolutionEntity", "resolutionEntity")
+      .leftJoin("p.ramTypeEntity", "ramTypeEntity")
+      .where("p.code = :code", {code: code})
+      .getRawOne();
+
+    return product;
+  }
+
+  async update(id: number, createProductDto: CreateProductDto) {
+    const dto = createProductDto;
+
+    dto.image = dto.image ? dto.image : null;
+    dto.imageName = dto.imageName ? dto.imageName : null;
+    dto.core = dto.core ? dto.core : null;
+    dto.diagonal = dto.diagonal ? dto.diagonal : null;
+    dto.sizeHD = dto.sizeHD ? dto.sizeHD : null;
+    dto.refreshRate = dto.refreshRate ? dto.refreshRate : null;
+    dto.weight = dto.weight ? dto.weight : null;
+    dto.thickness = dto.thickness ? dto.thickness : null;
+    dto.cpuModel = dto.cpuModel ? dto.cpuModel : null;
+    dto.graphicsModel = dto.graphicsModel ? dto.graphicsModel : null;
+    dto.url = dto.url ? dto.url : null;
+
+    return this.productsRepository.query(
+      `UPDATE product SET model='${dto.model}', image=NULLIF(${dto.image},''), image_name=NULLIF(${dto.imageName},''), code='${dto.code}',
+                   price=${dto.price}, year_id=${dto.yearId}, brand_id=${dto.brandId}, type_id=${dto.typeId}, cpu_id=${dto.cpuId}, color_id=${dto.colorId}, 
+                   graphics_id=${dto.graphicsId}, os_id=${dto.osId}, resolution_id=${dto.resolutionId}, ram_type_id=${dto.ramTypeId},ram=${dto.ram},
+                   core=NULLIF(${dto.core},''), diagonal=NULLIF(${dto.diagonal},''), sizeHD=NULLIF(${dto.sizeHD},''), 
+                   refresh_rate=NULLIF(${dto.refreshRate},''), weight=NULLIF(${dto.weight},''),
+                   thickness=NULLIF(${dto.thickness},''),cpu_model=NULLIF('${dto.cpuModel}',''), graphics_model=NULLIF('${dto.graphicsModel}',''),
+                   url=NULLIF('${dto.url}','')
+                    WHERE id = ${id}`
+    );
   }
 
   remove(id: number) {
-    return `This action removes a #${id} product`;
+    return this.productsRepository.delete(id);
   }
 
   private makeHavingClause(filters, searchTerm) {

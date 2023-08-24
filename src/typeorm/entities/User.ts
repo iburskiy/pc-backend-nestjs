@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity("user")
 export class User {
@@ -16,4 +16,8 @@ export class User {
 
   @Column({default: false})
   isAdmin: boolean;
+
+  /*@ManyToOne(() => Order, entity => entity.id, { nullable: true, eager: true })
+  @JoinColumn({name: 'order_id'})
+  order: Order;*/
 }

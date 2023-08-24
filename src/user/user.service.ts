@@ -11,12 +11,25 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  findAll() {
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .getMany();
   }
 
   createUser(dto: CreateUserDto) {
     const newUser = this.usersRepository.create({...dto});
     return this.usersRepository.save(newUser);
   }
+
+  /*async findOne(id: number) {
+    const user = await this.usersRepository
+      .createQueryBuilder('user')
+      .select(['user.*', 'orders.id AS orderId', 'orders.value AS orderValue'])
+      .leftJoin("user.order", "orders")
+      .where("user.id = :id", {id: id})
+      .getRawOne();
+    console.log('user: ', user);
+    return user;
+  }*/
 }

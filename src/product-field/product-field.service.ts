@@ -12,11 +12,14 @@ export class ProductFieldService {
   ) {}
 
   findAll(): Promise<ProductField[]> {
-    return this.productFieldRepository.find();
+    return this.productFieldRepository
+      .createQueryBuilder('pf')
+      .select(['pf.*'])
+      .getRawMany();
   }
 
   update(id: number, updateProductFieldDto: UpdateProductFieldDto) {
-    return `This action updates a #${id} productField`;
+    return this.productFieldRepository.update(id, updateProductFieldDto);
   }
 
 }

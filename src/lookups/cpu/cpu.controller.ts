@@ -1,33 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { CpuService } from './cpu.service';
 import { CreateLookupDto } from '../_dto/create-lookup.dto';
+import { PRODUCT_LOOKUP_FIELD_TEXT } from '../../constants';
 
 @Controller('product-cpu')
 export class CpuController {
-  constructor(private readonly cpuService: CpuService) {}
+  constructor(private readonly lookupService: CpuService) {}
 
-  @Post()
-  create(@Body() createCpuDto: CreateLookupDto) {
-    return this.cpuService.create(createCpuDto);
+  @Post('create')
+  async create(@Body() createLookupDto: CreateLookupDto) {
+    try {
+      await this.lookupService.create(createLookupDto);
+      return { success: true, message: `${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}" created!` };
+    } catch (err) {
+      console.error(`There was an error creating ${PRODUCT_LOOKUP_FIELD_TEXT} ${createLookupDto.value}:`, '\n', `${err}`);
+      return { success: false, message: `There was an error creating ${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}"` };
+    }
   }
 
   @Get('all')
   findAll() {
-    return this.cpuService.findAll();
+    return this.lookupService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cpuService.findOne(+id);
+  @Get('all/extended')
+  findAllExtended() {
+    return this.lookupService.findAllExtended();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCpuDto: CreateLookupDto) {
-    return this.cpuService.update(+id, updateCpuDto);
+  @Put('update/:id')
+  async update(@Param('id') id: string, @Body() createLookupDto: CreateLookupDto) {
+    try {
+      await this.lookupService.update(+id, createLookupDto);
+      return { success: true, message: `${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}" updated!` }
+    } catch (err) {
+      console.error(`There was an error updating ${PRODUCT_LOOKUP_FIELD_TEXT} ${createLookupDto.value}:`, '\n', `${err}`);
+      return { success: false, message: `There was an error updating ${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}"` }
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cpuService.remove(+id);
+  @Delete('delete/:id')
+  async remove(@Param('id') id: string) {
+    try {
+      await this.lookupService.remove(+id);
+      return { success: true, message: `${PRODUCT_LOOKUP_FIELD_TEXT} with ID="${id}" deleted!` }
+    } catch (err) {
+      console.error(`There was an error deleting ${PRODUCT_LOOKUP_FIELD_TEXT} with ID=${id}:`, '\n', `${err}`);
+      return { success: false, message: `There was an error deleting ${PRODUCT_LOOKUP_FIELD_TEXT} with ID="${id}"` };
+    }
   }
 }

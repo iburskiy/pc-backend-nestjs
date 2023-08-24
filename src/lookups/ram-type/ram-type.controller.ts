@@ -1,33 +1,52 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { RamTypeService } from './ram-type.service';
 import { CreateLookupDto } from '../_dto/create-lookup.dto';
+import { PRODUCT_LOOKUP_FIELD_TEXT } from '../../constants';
 
 @Controller('product-ram-type')
 export class RamTypeController {
-  constructor(private readonly ramTypeService: RamTypeService) {}
+  constructor(private readonly lookupService: RamTypeService) {}
 
-  @Post()
-  create(@Body() createRamTypeDto: CreateLookupDto) {
-    return this.ramTypeService.create(createRamTypeDto);
+  @Post('create')
+  async create(@Body() createLookupDto: CreateLookupDto) {
+    try {
+      await this.lookupService.create(createLookupDto);
+      return { success: true, message: `${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}" created!` };
+    } catch (err) {
+      console.error(`There was an error creating ${PRODUCT_LOOKUP_FIELD_TEXT} ${createLookupDto.value}:`, '\n', `${err}`);
+      return { success: false, message: `There was an error creating ${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}"` };
+    }
   }
 
   @Get('all')
   findAll() {
-    return this.ramTypeService.findAll();
+    return this.lookupService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.ramTypeService.findOne(+id);
+  @Get('all/extended')
+  findAllExtended() {
+    return this.lookupService.findAllExtended();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRamTypeDto: CreateLookupDto) {
-    return this.ramTypeService.update(+id, updateRamTypeDto);
+  @Put('update/:id')
+  async update(@Param('id') id: string, @Body() createLookupDto: CreateLookupDto) {
+    try {
+      await this.lookupService.update(+id, createLookupDto);
+      return { success: true, message: `${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}" updated!` }
+    } catch (err) {
+      console.error(`There was an error updating ${PRODUCT_LOOKUP_FIELD_TEXT} ${createLookupDto.value}:`, '\n', `${err}`);
+      return { success: false, message: `There was an error updating ${PRODUCT_LOOKUP_FIELD_TEXT} "${createLookupDto.value}"` }
+    }
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.ramTypeService.remove(+id);
+  @Delete('delete/:id')
+  async remove(@Param('id') id: string) {
+    try {
+      await this.lookupService.remove(+id);
+      return { success: true, message: `${PRODUCT_LOOKUP_FIELD_TEXT} with ID="${id}" deleted!` }
+    } catch (err) {
+      console.error(`There was an error deleting ${PRODUCT_LOOKUP_FIELD_TEXT} with ID=${id}:`, '\n', `${err}`);
+      return { success: false, message: `There was an error deleting ${PRODUCT_LOOKUP_FIELD_TEXT} with ID="${id}"` };
+    }
   }
 }

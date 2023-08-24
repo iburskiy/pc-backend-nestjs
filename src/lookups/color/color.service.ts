@@ -11,23 +11,29 @@ export class ColorService {
     private lookupRepository: Repository<LkpProductColor>,
   ) {}
 
-  create(createColorDto: CreateLookupDto) {
-    return 'This action adds a new color';
+  create(createBrandDto: CreateLookupDto) {
+    return this.lookupRepository.insert(createBrandDto);
   }
 
   findAll() {
     return this.lookupRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} color`;
+  findAllExtended() {
+    const res = this.lookupRepository.query(
+      `SELECT pt.id, pt.value, CASE WHEN p.model is not NULL THEN 1 ELSE 0 END AS isProductExist 
+                FROM lkp_product_color pt 
+                LEFT JOIN product p 
+                ON pt.id = p.color_id and p.id = (select min(id) from product where color_id = pt.id)`
+    );
+    return res;
   }
 
-  update(id: number, updateColorDto: CreateLookupDto) {
-    return `This action updates a #${id} color`;
+  update(id: number, updateBrandDto: CreateLookupDto) {
+    return this.lookupRepository.update(id, updateBrandDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} color`;
+    return this.lookupRepository.delete(id);
   }
 }

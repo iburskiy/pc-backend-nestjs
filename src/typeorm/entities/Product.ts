@@ -31,39 +31,39 @@ export class Product {
 
   @ManyToOne(() => LkpProductYear, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'year_id'})
-  yearId: LkpProductYear;
+  yearEntity: LkpProductYear;
 
   @ManyToOne(() => LkpProductBrand, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'brand_id'})
-  brandId: LkpProductBrand;
+  brandEntity: LkpProductBrand;
 
   @ManyToOne(() => LkpProductType, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'type_id'})
-  typeId: LkpProductType;
+  typeEntity: LkpProductType;
 
   @ManyToOne(() => LkpProductCpu, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'cpu_id'})
-  cpuId: LkpProductCpu;
+  cpuEntity: LkpProductCpu;
 
   @ManyToOne(() => LkpProductColor, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'color_id'})
-  colorId: LkpProductColor;
+  colorEntity: LkpProductColor;
 
   @ManyToOne(() => LkpProductGraphics, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'graphics_id'})
-  graphicsId: LkpProductGraphics;
+  graphicsEntity: LkpProductGraphics;
 
   @ManyToOne(() => LkpProductOs, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'os_id'})
-  osId: LkpProductOs;
+  osEntity: LkpProductOs;
 
   @ManyToOne(() => LkpProductResolution, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'resolution_id'})
-  resolutionId: LkpProductResolution;
+  resolutionEntity: LkpProductResolution;
 
   @ManyToOne(() => LkpProductRamType, entity => entity.id, { nullable: false })
   @JoinColumn({name: 'ram_type_id'})
-  ramTypeId: LkpProductRamType;
+  ramTypeEntity: LkpProductRamType;
 
   @Column("int", { name: "ram"})
   ram: number;
@@ -80,7 +80,7 @@ export class Product {
   diagonal: number;
 
   @Column("smallint", { name: "sizeHD", nullable: true })
-  sizeHd: number;
+  sizeHD: number;
 
   @Column("smallint", { name: "refresh_rate", nullable: true})
   refreshRate: number;

@@ -11,23 +11,30 @@ export class RamTypeService {
     private lookupRepository: Repository<LkpProductRamType>,
   ) {}
 
-  create(createRamTypeDto: CreateLookupDto) {
-    return 'This action adds a new ramType';
+  create(createBrandDto: CreateLookupDto) {
+    return this.lookupRepository.insert(createBrandDto);
   }
 
   findAll() {
     return this.lookupRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} ramType`;
+  findAllExtended() {
+    const res = this.lookupRepository.query(
+      `SELECT pt.id, pt.value, CASE WHEN p.model is not NULL THEN 1 ELSE 0 END AS isProductExist
+       FROM lkp_product_ram_type pt
+                LEFT JOIN product p
+                          ON pt.id = p.ram_type_id and
+                             p.id = (select min(id) from product where ram_type_id = pt.id)`
+    );
+    return res;
   }
 
-  update(id: number, updateRamTypeDto: CreateLookupDto) {
-    return `This action updates a #${id} ramType`;
+  update(id: number, updateBrandDto: CreateLookupDto) {
+    return this.lookupRepository.update(id, updateBrandDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} ramType`;
+    return this.lookupRepository.delete(id);
   }
 }
